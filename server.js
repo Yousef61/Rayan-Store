@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const crypto = require('node:crypto');
 const express = require('express');
 const multer = require('multer');
-const { db, getSettings, setSetting, transaction, PUBLIC_SETTINGS } = require('./src/db');
+const { db, DATA_DIR, getSettings, setSetting, transaction, PUBLIC_SETTINGS } = require('./src/db');
 const auth = require('./src/auth');
 
 const app = express();
@@ -192,8 +192,18 @@ admin.get('/stats', wrap((req, res) => {
     new_orders: one("SELECT COUNT(*) AS n FROM orders WHERE status = 'new'").n,
     orders_today: one("SELECT COUNT(*) AS n FROM orders WHERE date(created_at, 'localtime') = date('now', 'localtime')").n,
     revenue: one("SELECT COALESCE(SUM(total), 0) AS n FROM orders WHERE status = 'delivered'").n,
+    storage: storageStatus(),
   });
 }));
+
+// Railway sets RAILWAY_VOLUME_MOUNT_PATH when a volume is attached. Data outside it is lost on every redeploy.
+function storageStatus() {
+  if (!process.env.RAILWAY_ENVIRONMENT && !process.env.RAILWAY_ENVIRONMENT_NAME) return 'unknown';
+  const mount = process.env.RAILWAY_VOLUME_MOUNT_PATH;
+  if (!mount) return 'missing';
+  const inside = (dir) => path.resolve(dir).startsWith(path.resolve(mount) + path.sep) || path.resolve(dir) === path.resolve(mount);
+  return inside(DATA_DIR) && inside(UPLOAD_DIR) ? 'ok' : 'wrong_path';
+}
 
 // Products
 function readProductBody(b) {

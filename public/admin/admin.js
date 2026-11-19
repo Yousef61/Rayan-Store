@@ -99,7 +99,13 @@
       api(`/api/admin/orders${orderFilter ? `?status=${orderFilter}` : ''}`),
     ]);
     const filters = [['new', 'جديد'], ['confirmed', 'تم التأكيد'], ['shipped', 'تم الشحن'], ['delivered', 'تم التسليم'], ['cancelled', 'ملغي'], ['', 'الكل']];
+    const storageMsg = {
+      ok: '<div class="notice ok">✅ التخزين الدائم شغال: المنتجات والصور والطلبات محفوظة.</div>',
+      missing: '<div class="error">⚠️ مفيش Volume متوصل بالموقع على Railway. أي منتجات أو طلبات هتتمسح مع أول تحديث. ضيف Volume على المسار /data.</div>',
+      wrong_path: '<div class="error">⚠️ فيه Volume بس على مسار غلط. خلي الـ Mount Path بتاعه /data بالظبط.</div>',
+    }[stats?.storage] || '';
     view.innerHTML = `
+      ${storageMsg}
       ${stats ? `<div class="stats">
         <div class="stat"><small>طلبات جديدة</small><b>${stats.new_orders}</b></div>
         <div class="stat"><small>طلبات النهارده</small><b>${stats.orders_today}</b></div>
