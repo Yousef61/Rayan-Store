@@ -331,7 +331,7 @@
   async function route() {
     const [, page, arg] = (location.hash.replace(/^#/, '') || '/').split('/');
     document.title = `${settings.store_name} | ${settings.tagline}`;
-    document.querySelectorAll('#catsNav a').forEach((a) => a.classList.toggle('active', a.getAttribute('href') === location.hash || (!page && a.dataset.home)));
+    document.querySelectorAll('#catsNav a').forEach((a) => a.classList.toggle('active', a.getAttribute('href') === location.hash || (!page && !!a.dataset.home)));
     viewSignal();
     app.innerHTML = '<div class="loader"></div>';
     try {
